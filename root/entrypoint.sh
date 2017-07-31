@@ -9,6 +9,7 @@ configure () {
   sed -i 's@database_name: symfony@database_name: '"$SYMFONY__DATABASE_NAME"'@' /var/www/wallabag/app/config/parameters.yml
   sed -i 's@database_user: root@database_user: '"$SYMFONY__DATABASE_USER"'@' /var/www/wallabag/app/config/parameters.yml
   sed -i 's@database_password: null@database_password: '"$SYMFONY__DATABASE_PASSWORD"'@' /var/www/wallabag/app/config/parameters.yml
+  php bin/console cache:clear -e=prod
 }
 
 if [ "$1" = "wallabag" ]; then
