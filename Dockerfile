@@ -7,9 +7,13 @@ RUN chgrp -R 0 \
       /etc/s6 \
       /var/run \
       /var/log \
+      /var/lib/nginx \
+      /var/tmp/nginx \
       && \
     chmod -R g+rwX \
       /var/www/wallabag \
       /etc/s6 \
       /var/run \
-      /var/log
+      /var/log \
+      /var/lib/nginx \
+      /var/tmp/nginx
