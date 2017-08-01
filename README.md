@@ -1,9 +1,5 @@
 # Wallabag for OpenShift 3
 
-```
-Work In Progress!
-```
-
 This repository contains an OpenShift 3 template to easily deploy Wallabag on OpenShift.
 With this template it's possible to run your own Piwik instance f.e. on [APPUiO](https://appuio.ch/).
 
