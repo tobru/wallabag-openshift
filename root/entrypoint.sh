@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -x
-
 configure () {
   sed -i 's/pdo_sqlite/pdo_mysql/' /var/www/wallabag/app/config/parameters.yml
   sed -i 's@database_host: 127.0.0.1@database_host: '"$SYMFONY__DATABASE_HOST"'@' /var/www/wallabag/app/config/parameters.yml

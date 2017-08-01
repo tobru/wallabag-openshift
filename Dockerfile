@@ -7,7 +7,8 @@ RUN rm -rf /var/www/wallabag/var/cache/prod && \
     rm -rf /var/www/wallabag/var/cache/prod && \
     echo "Fixing directory permissions" && \
     chgrp -R 0 \
-      /var/www/wallabag \
+      /var/www/wallabag/app \
+      /var/www/wallabag/var \
       /etc/s6 \
       /var/run \
       /var/log \
@@ -15,7 +16,8 @@ RUN rm -rf /var/www/wallabag/var/cache/prod && \
       /var/tmp/nginx \
     && \
     chmod -R g+rwX \
-      /var/www/wallabag \
+      /var/www/wallabag/app \
+      /var/www/wallabag/var \
       /etc/s6 \
       /var/run \
       /var/log \
@@ -24,5 +26,7 @@ RUN rm -rf /var/www/wallabag/var/cache/prod && \
     echo "Finished fixing directory permissions"
 
 COPY root /
+
+VOLUME ["/var/www/wallabag/var"]
 
 USER 1001
