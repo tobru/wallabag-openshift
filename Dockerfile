@@ -4,6 +4,7 @@ MAINTAINER Tobias Brunner <tobias@tobru.ch>
 WORKDIR /var/www/wallabag
 RUN rm -rf /var/www/wallabag/var/cache/prod && \
     SYMFONY_ENV=prod composer install --no-dev -o --prefer-dist && \
+    rm -rf /var/www/wallabag/var/cache/prod && \
     echo "Fixing directory permissions" && \
     chgrp -R 0 \
       /var/www/wallabag \
@@ -23,3 +24,5 @@ RUN rm -rf /var/www/wallabag/var/cache/prod && \
     echo "Finished fixing directory permissions"
 
 COPY root /
+
+USER 1001
