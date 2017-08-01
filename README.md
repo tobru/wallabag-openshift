@@ -52,6 +52,8 @@ oc process -f https://raw.githubusercontent.com/tobru/wallabag-openshift/master/
 
 * Support configuration of all parameters https://doc.wallabag.org/en/admin/parameters.html
 * Better configuration system (get rid of sed)
+* Tagged Docker Image
+* Upgrade path
 * Backup
 
 ## Contributions

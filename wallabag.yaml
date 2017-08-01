@@ -22,6 +22,9 @@ parameters:
 - name: PVC_SIZE_CONFIG
   description: PVC size for config files
   value: 1Gi
+- name: PVC_SIZE_UPLOADS
+  description: PVC size for uploads
+  value: 1Gi
 objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
@@ -29,10 +32,20 @@ objects:
     name: app-config
   spec:
     accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
     resources:
       requests:
         storage: ${PVC_SIZE_CONFIG}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: uploads
+  spec:
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: ${PVC_SIZE_UPLOADS}
 - apiVersion: v1
   kind: ImageStream
   metadata:
@@ -121,10 +134,12 @@ objects:
           resources: {}
           terminationMessagePath: /dev/termination-log
           volumeMounts:
-          - mountPath: /var/www/wallabag/var
-            name: var
+          - mountPath: /var/www/wallabag/var/cache
+            name: cache
           - mountPath: /var/www/wallabag/app/config
             name: app-config
+          - mountPath: /var/www/wallabag/web/uploads
+            name: uploads
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext: {}
@@ -135,6 +150,9 @@ objects:
         - name: app-config
           persistentVolumeClaim:
             claimName: app-config
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: uploads
     test: false
     triggers:
     - imageChangeParams:
