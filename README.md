@@ -18,11 +18,10 @@ PROJECT=wallabag
 oc new-project $PROJECT
 ```
 
-### 1 Deploy Database and Redis
+### 1 Deploy Database
 
 ```
 oc -n openshift process mariadb-persistent -p MYSQL_DATABASE=wallabag | oc -n $PROJECT create -f -
-oc -n $PROJECT new-app redis
 ```
 
 ### 2 Deploy Wallabag
