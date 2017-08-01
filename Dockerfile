@@ -28,5 +28,6 @@ RUN rm -rf /var/www/wallabag/var/cache/prod && \
 COPY root /
 
 VOLUME ["/var/www/wallabag/var"]
+EXPOSE 8000
 
 USER 1001
