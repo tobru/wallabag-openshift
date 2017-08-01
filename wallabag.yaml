@@ -146,7 +146,7 @@ objects:
         terminationGracePeriodSeconds: 30
         volumes:
         - emptyDir: {}
-          name: var
+          name: cache
         - name: app-config
           persistentVolumeClaim:
             claimName: app-config
