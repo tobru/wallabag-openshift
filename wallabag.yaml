@@ -1,0 +1,178 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: wallabag
+  annotations:
+    description: "wallabag is a self hostable application for saving web pages: Save and classify articles. Read them later. Freely."
+    tags: "read-it-later,wallabag"
+    iconClass: fa-cloud-upload
+    template.openshift.io/provider-display-name: "tobrunet"
+    template.openshift.io/documentation-url: "https://github.com/tobru/wallabag-openshift/blob/master/README.md"
+    template.openshift.io/support-url: "https://github.com/tobru/wallabag-openshift/issues"
+parameters:
+- name: APP_URL
+  description: Application URL of Wallabag (Route/host)
+  required: true
+- name: WALLABAG_IMAGE_TAG
+  description: Tag of the Wallabag Docker Image to deploy
+  value: latest
+- name: WALLABAG_IMAGE
+  description: Wallabag Docker Image to deploy
+  value: tobru/wallabag-openshift
+- name: PVC_SIZE_CONFIG
+  description: PVC size for config files
+  value: 1Gi
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: app-config
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${PVC_SIZE_CONFIG}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: wallabag
+    name: wallabag
+  spec:
+    tags:
+    - annotations:
+        openshift.io/imported-from: ${WALLABAG_IMAGE}:${WALLABAG_IMAGE_TAG}
+      from:
+        kind: DockerImage
+        name: ${WALLABAG_IMAGE}:${WALLABAG_IMAGE_TAG}
+      importPolicy:
+        scheduled: true
+      name: ${WALLABAG_IMAGE_TAG}
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: wallabag
+    name: wallabag
+  spec:
+    replicas: 1
+    selector:
+      app: wallabag
+      deploymentconfig: wallabag
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: wallabag
+          deploymentconfig: wallabag
+      spec:
+        containers:
+        - env:
+            - name: FOSUSER_REGISTRATION
+              value: "false"
+            - name: SYMFONY__DATABASE_HOST
+              value: mariadb
+            - name: SYMFONY__DATABASE_NAME
+              value: wallabag
+            - name: SYMFONY__DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: database-user
+                  name: mariadb
+            - name: SYMFONY__DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: database-password
+                  name: mariadb
+          image: wallabag
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 9000
+            timeoutSeconds: 5
+          name: wallabag
+          ports:
+          - containerPort: 8000
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 9000
+            timeoutSeconds: 5
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/www/wallabag/var
+            name: var
+          - mountPath: /var/www/wallabag/app/config
+            name: app-config
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: var
+        - name: app-config
+          persistentVolumeClaim:
+            claimName: app-config
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - wallabag
+        from:
+          kind: ImageStreamTag
+          name: wallabag:${WALLABAG_IMAGE_TAG}
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: wallabag
+    name: wallabag
+  spec:
+    ports:
+    - name: 8000-tcp
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+    selector:
+      app: wallabag
+      deploymentconfig: wallabag
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: wallabag
+  spec:
+    host: ${APP_URL}
+    port:
+      targetPort: 8000-tcp
+    to:
+      kind: Service
+      name: wallabag
+      weight: 100
+    wildcardPolicy: None

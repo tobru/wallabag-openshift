@@ -21,7 +21,7 @@ oc new-project $PROJECT
 ### 1 Deploy Database and Redis
 
 ```
-oc -n openshift process mariadb-persistent -p MYSQL_DATABASE=piwik | oc -n $PROJECT create -f -
+oc -n openshift process mariadb-persistent -p MYSQL_DATABASE=wallabag | oc -n $PROJECT create -f -
 oc -n $PROJECT new-app redis
 ```
 

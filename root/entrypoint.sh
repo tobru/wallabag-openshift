@@ -15,6 +15,7 @@ configure () {
   sed -i 's@database_user: root@database_user: '"$SYMFONY__DATABASE_USER"'@' /var/www/wallabag/app/config/parameters.yml
   sed -i 's@database_password: null@database_password: '"$SYMFONY__DATABASE_PASSWORD"'@' /var/www/wallabag/app/config/parameters.yml
   sed -i 's@redis_host: localhost@redis_host: redis@' /var/www/wallabag/app/config/parameters.yml
+  sed -i 's@fosuser_registration: true@fosuser_registration: '"$FOSUSER_REGISTRATION"'@' /var/www/wallabag/app/config/parameters.yml
 
   echo "---> clear application cache"
   php bin/console cache:clear -e=prod
